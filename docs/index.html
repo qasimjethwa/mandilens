@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MandiLens — Know tomorrow's mandi price</title>
+<meta name="description" content="Crop price forecasting for Indian farmers. Four models compete in a walk-forward backtest; the winner forecasts the next 7 days and names the best day to sell. Pure Java engine, runs in your browser.">
+<style>
+:root{
+  --paper:#FBF6EC; --card:#FFFDF7; --ink:#1C1917; --muted:#78716C;
+  --green:#1B4332; --leaf:#2D6A4F; --sage:#B7C9A8; --amber:#E9A03B;
+  --terra:#C05621; --line:#E7DFCE; --good:#2D6A4F; --bad:#B3261E;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--paper);color:var(--ink);font-family:-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;line-height:1.5}
+.wrap{max-width:1080px;margin:0 auto;padding:0 20px 60px}
+header{padding:34px 0 8px;display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap}
+.logo{font-family:Georgia,'Times New Roman',serif;font-size:34px;font-weight:700;letter-spacing:.5px;color:var(--green)}
+.logo span{color:var(--amber)}
+.tag{font-family:Georgia,serif;font-style:italic;font-size:19px;color:var(--muted);margin-top:2px}
+.badge{border:1.5px solid var(--green);color:var(--green);border-radius:999px;padding:6px 14px;font-size:13px;font-weight:700;letter-spacing:.4px;white-space:nowrap}
+.hero{margin:22px 0 26px}
+.hero h1{font-family:Georgia,serif;font-size:clamp(30px,4.6vw,52px);line-height:1.08;color:var(--green)}
+.hero h1 em{color:var(--terra);font-style:normal}
+.hero p{max-width:640px;color:var(--muted);font-size:17px;margin-top:12px}
+.controls{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:6px 0 18px}
+.pill{border:2px solid var(--line);background:var(--card);border-radius:999px;padding:9px 18px;font-size:15px;font-weight:600;cursor:pointer;color:var(--ink)}
+.pill:hover{border-color:var(--leaf)}
+.pill.on{background:var(--green);border-color:var(--green);color:#fff}
+select{border:2px solid var(--line);background:var(--card);border-radius:999px;padding:9px 14px;font-size:15px;font-weight:600;color:var(--ink);cursor:pointer}
+.card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:22px;box-shadow:0 2px 14px rgba(27,67,50,.06)}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:14px}
+.stat .lbl{font-size:12.5px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted)}
+.stat .big{font-family:Georgia,serif;font-size:34px;font-weight:700;color:var(--green);margin-top:4px}
+.stat .sub{font-size:13.5px;color:var(--muted);margin-top:2px}
+.stat.hl{background:var(--green);border-color:var(--green)}
+.stat.hl .lbl{color:#D8E8DC}.stat.hl .big{color:#fff}.stat.hl .sub{color:#B7D3BE}
+#chart{width:100%;height:340px;display:block}
+.legend{display:flex;gap:18px;flex-wrap:wrap;font-size:13.5px;color:var(--muted);margin-top:8px}
+.legend b{color:var(--ink)}
+.dot{display:inline-block;width:22px;height:4px;border-radius:2px;vertical-align:middle;margin-right:6px}
+.grid2{display:grid;grid-template-columns:1.15fr .85fr;gap:14px;margin-top:14px}
+h2{font-family:Georgia,serif;font-size:22px;color:var(--green);margin-bottom:10px}
+table{width:100%;border-collapse:collapse;font-size:14.5px}
+th{text-align:left;color:var(--muted);font-size:12px;letter-spacing:1px;text-transform:uppercase;padding:8px 6px;border-bottom:2px solid var(--line)}
+td{padding:9px 6px;border-bottom:1px solid var(--line)}
+tr.win td{font-weight:700;color:var(--green)}
+tr.win td:first-child::after{content:"  ★ best";color:var(--amber);font-size:12px}
+.num{text-align:right;font-variant-numeric:tabular-nums}
+.note{font-size:13.5px;color:var(--muted)}
+.note b{color:var(--ink)}
+.steps{list-style:none;counter-reset:s}
+.steps li{counter-increment:s;padding:9px 0 9px 42px;position:relative;font-size:15px}
+.steps li::before{content:counter(s);position:absolute;left:0;top:8px;width:28px;height:28px;border-radius:50%;background:var(--amber);color:#fff;font-weight:800;text-align:center;line-height:28px;font-size:14px}
+.upload{margin-top:14px}
+.upload label{display:block;font-size:13px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+.drop{border:2px dashed var(--line);border-radius:14px;padding:18px;text-align:center;font-size:14.5px;color:var(--muted);cursor:pointer}
+.drop:hover{border-color:var(--leaf);color:var(--ink)}
+.drop input{display:none}
+#uploadMsg{font-size:13.5px;margin-top:8px;color:var(--green);font-weight:600}
+footer{margin-top:34px;padding-top:18px;border-top:1px solid var(--line);font-size:13.5px;color:var(--muted);display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+footer a{color:var(--green);font-weight:700}
+@media(max-width:760px){.stats{grid-template-columns:1fr 1fr}.grid2{grid-template-columns:1fr}#chart{height:280px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <div class="logo">Mandi<span>Lens</span></div>
+      <div class="tag">Know tomorrow's mandi price, before you load the truck.</div>
+    </div>
+    <div class="badge">PURE JAVA · NO BACKEND</div>
+  </header>
+
+  <section class="hero">
+    <h1>Farmers sell at a loss when prices crash <em>after</em> harvest. What if they knew <em>next week's</em> price first?</h1>
+    <p>Four forecasting models compete in a walk-forward backtest on 120 days of mandi prices. The winner forecasts the next 7 days — and names the best day to sell. The Java engine that does this runs right here, in your browser.</p>
+  </section>
+
+  <div class="controls" id="cropPills"></div>
+  <div class="controls">
+    <label for="mandiSel" style="font-weight:700;color:var(--muted);font-size:14px">MANDI</label>
+    <select id="mandiSel"></select>
+    <span class="note" id="rangeNote"></span>
+  </div>
+
+  <div class="card">
+    <div class="stats">
+      <div class="stat"><div class="lbl">Today</div><div class="big" id="stToday">—</div><div class="sub" id="stTodaySub">₹ / quintal</div></div>
+      <div class="stat hl"><div class="lbl">Best day to sell</div><div class="big" id="stBest" style="font-size:26px;line-height:1.15">—</div><div class="sub" id="stBestSub">—</div></div>
+      <div class="stat"><div class="lbl">Expected gain</div><div class="big" id="stGain">—</div><div class="sub">vs selling today</div></div>
+      <div class="stat"><div class="lbl">Best model</div><div class="big" id="stModel" style="font-size:21px;line-height:1.25">—</div><div class="sub" id="stMape">—</div></div>
+    </div>
+    <canvas id="chart" width="1040" height="340"></canvas>
+    <div class="legend">
+      <span><i class="dot" style="background:var(--leaf)"></i><b>History</b> — last 60 days</span>
+      <span><i class="dot" style="background:var(--amber)"></i><b>Forecast</b> — next 7 days</span>
+      <span><i class="dot" style="background:#EAD9A8"></i><b>95% band</b></span>
+      <span>◆ <b>Best day to sell</b></span>
+    </div>
+  </div>
+
+  <div class="grid2">
+    <div class="card">
+      <h2>Which model wins?</h2>
+      <p class="note" style="margin-bottom:8px">Walk-forward backtest — each of the last 21 days predicted 1 day ahead, using <b>only data before that day</b>. No look-ahead.</p>
+      <table>
+        <thead><tr><th>Model</th><th class="num">MAPE</th><th class="num">MAE ₹</th><th class="num">RMSE ₹</th></tr></thead>
+        <tbody id="modelTable"></tbody>
+      </table>
+      <p class="note" style="margin-top:12px" id="javaCheck">Java engine cross-check: loading…</p>
+    </div>
+    <div class="card">
+      <h2>How it works</h2>
+      <ol class="steps">
+        <li><b>Load prices</b> — daily modal prices per crop &amp; mandi (CSV, Agmarknet format).</li>
+        <li><b>Four models race</b> — Seasonal Naive, 7-day Moving Average, 30-day Linear Trend, and an Ensemble median of all three.</li>
+        <li><b>Backtest picks the winner</b> — lowest MAPE over the last 21 days, no look-ahead.</li>
+        <li><b>Forecast 7 days</b> — with a 95% confidence band from the backtest error spread.</li>
+        <li><b>Name the best day</b> — the highest forecast price, and what waiting is worth.</li>
+      </ol>
+      <div class="upload">
+        <label>Try your own mandi data</label>
+        <label class="drop" for="csvFile">Drop a CSV here — <b>crop,mandi,date,price</b> — or click to choose one
+          <input type="file" id="csvFile" accept=".csv">
+        </label>
+        <div id="uploadMsg"></div>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <span><b>Sample data:</b> the bundled prices are illustrative, not real market data. Bring a real Agmarknet export via the upload above — or run the Java CLI on it.</span>
+    <span>Built in a day · <a href="https://github.com/qasimjethwa/mandilens">github.com/qasimjethwa/mandilens</a></span>
+  </footer>
+</div>
+<script src="forecast.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
