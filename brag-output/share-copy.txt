@@ -1,0 +1,1 @@
+MandiLens: a crop-price forecaster in pure Java — four models race in a walk-forward backtest, the winner forecasts the next 7 days and names the best day to sell. Onion: 5.5% error. Tomato: 22% — and it says so. Live demo: https://qasimjethwa.github.io/mandilens/

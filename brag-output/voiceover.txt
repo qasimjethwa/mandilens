@@ -1,0 +1,1 @@
+What if farmers knew next week's mandi price? MandiLens races four forecasting models, backtests them with no look-ahead, and picks the winner for each crop. Onion: five-point-five percent error. It forecasts seven days ahead — and names the best day to sell. Code and live demo at the link below.

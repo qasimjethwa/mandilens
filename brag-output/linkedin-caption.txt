@@ -1,0 +1,14 @@
+Onions at 5.5% error. Tomatoes at 22% — and the model admits it.
+
+Farmers in India lose money when mandi prices crash after harvest. So I built MandiLens: a crop price forecaster in pure Java. Four models race in a walk-forward backtest — no look-ahead — and the winner forecasts the next 7 days and names the best day to sell. If prices are falling, it tells you to sell today.
+
+Onion and potato forecast well. Tomato doesn't, and the wide confidence band shows it honestly. A forecast that admits what it can't predict is worth more than one that pretends.
+
+The same Java models run in the browser demo — no backend. Try it with your own mandi CSV.
+
+Repo: https://github.com/qasimjethwa/mandilens
+Live demo: https://qasimjethwa.github.io/mandilens/
+
+What should it forecast next — wheat, cotton, or something else?
+
+#MachineLearning #Java #AgriTech
